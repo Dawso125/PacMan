@@ -441,6 +441,10 @@ def pacDude(tileFile, palletteFile, gameFile):
                 pacMan.move_right()
             elif (direction == "left"):
                 pacMan.move_left()
+
+        myRow, myCol = gameGrid.getPacManrowAndCol(pacMan.x, pacMan.y)
+        if tilemap[myRow][myCol] in [46, 47, 45]:
+            tilemap[myRow][myCol] = 44
        
         # Draw the tile pallet from the sprite sheet to the screen.
         showGame(screen, x0, y0, tilemap, nRows, nCols, pixelTiles, tile_width, tile_height)
