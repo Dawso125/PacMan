@@ -38,7 +38,10 @@ CYAN = (0, 255, 255)
 MAGENTA = (255, 0, 255)
 BLUE = (0, 0, 255)
 
+
+
 class Player(pygame.sprite.Sprite):
+
     def __init__(self, filename_base, pos_x, pos_y, nSprites, sprite_width, sprite_height):
         super().__init__()
         # Turn animate off.
@@ -394,6 +397,9 @@ def pacDude(tileFile, palletteFile, gameFile):
     running = True
     direction = None
     count = 0
+    score = 0
+    font = pygame.font.Font(None, 36)
+    score_text = font.render("Score: " + str(score), True, WHITE)
 
     while(running):
         # Handle events
@@ -445,10 +451,28 @@ def pacDude(tileFile, palletteFile, gameFile):
         myRow, myCol = gameGrid.getPacManrowAndCol(pacMan.x, pacMan.y)
         if tilemap[myRow][myCol] in [46, 47, 45]:
             tilemap[myRow][myCol] = 44
-       
+            score += 100
+            screen.fill(BLACK, (10, 10, 200, 50))
+            screen.blit(score_text, (10, 10))
+
+        # Update the score text when the score changes
+        new_score_text = font.render("Score: " + str(score), True, WHITE)
+        if new_score_text != score_text:
+
+
+            score_text = new_score_text
+
+        score_text = font.render("Score: " + str(score), True, WHITE)
+
+
+
         # Draw the tile pallet from the sprite sheet to the screen.
         showGame(screen, x0, y0, tilemap, nRows, nCols, pixelTiles, tile_width, tile_height)
         gameGrid.drawMe(screen)
+
+
+
+
         
         # Draw characters.
         moving_sprites.update(.10)
@@ -456,6 +480,8 @@ def pacDude(tileFile, palletteFile, gameFile):
         
         # Put surface to video memory
         pygame.display.flip()
+
+
         # Make sure we get 60 or frames per second
         clock.tick(60)
         
