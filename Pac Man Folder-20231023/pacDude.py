@@ -80,6 +80,8 @@ class Player(pygame.sprite.Sprite):
         self.rect.topright = [pos_x, pos_y]
         
         self.mode = 'r'
+
+
         
     def update(self, speed):
         if (self.is_animating == True):
@@ -88,7 +90,7 @@ class Player(pygame.sprite.Sprite):
                 self.current_sprite = 0
                 
             self.image = self.sprites[int(self.current_sprite)]
-            
+
     def animate_me(self):
         self.is_animating = not(self.is_animating)
         
@@ -450,6 +452,13 @@ def pacDude(tileFile, palletteFile, gameFile):
 
         myRow, myCol = gameGrid.getPacManrowAndCol(pacMan.x, pacMan.y)
         if tilemap[myRow][myCol] in [46, 47, 45]:
+            if tilemap[myRow][myCol] == 47:
+                # Make a pacMan.
+                pacMan = Player("pacManGun", 14 * sprite_width, 4 * sprite_height, 3, sprite_width, sprite_height)
+                moving_sprites = pygame.sprite.Group()
+                moving_sprites.add(pacMan)
+                pacMan.animate_me()
+
             tilemap[myRow][myCol] = 44
             score += 100
             screen.fill(BLACK, (10, 10, 200, 50))
