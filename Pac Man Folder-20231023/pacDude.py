@@ -39,46 +39,44 @@ MAGENTA = (255, 0, 255)
 BLUE = (0, 0, 255)
 
 
-
 class Player(pygame.sprite.Sprite):
 
     def __init__(self, filename_base, pos_x, pos_y, nSprites, sprite_width, sprite_height):
         super().__init__()
         # Turn animate off.
         self.is_animating = False
-        
+
         # Load sprites groups.
         # Right sprites.
         fileR = filename_base + "R.png"
         rightSprites = self.loadExtraSprites(fileR, nSprites, sprite_width, sprite_height)
         self.rightSprites = rightSprites
         self.sprites = rightSprites
-        
+
         # Left Sprites.
         fileL = filename_base + "L.png"
         leftSprites = self.loadExtraSprites(fileL, nSprites, sprite_width, sprite_height)
         self.leftSprites = leftSprites
-    
+
         # Up Sprites.
         fileU = filename_base + "U.png"
         upSprites = self.loadExtraSprites(fileU, nSprites, sprite_width, sprite_height)
         self.upSprites = upSprites
-        
+
         # Down Sprites.
         fileU = filename_base + "D.png"
         downSprites = self.loadExtraSprites(fileU, nSprites, sprite_width, sprite_height)
         self.downSprites = downSprites
-        
-            
+
         self.current_sprite = 0
         self.image = self.sprites[self.current_sprite]
-        
+
         self.rect = self.image.get_rect()
         print("sprite rect = ", self.rect)
         self.x = pos_x
         self.y = pos_y
         self.rect.topright = [pos_x, pos_y]
-        
+
         self.mode = 'r'
 
     def set_position(self, x0, y0):
@@ -86,23 +84,24 @@ class Player(pygame.sprite.Sprite):
         self.y = y0
         self.rect.topleft = [x0, y0]
         return
+
     def update(self, speed):
         if (self.is_animating == True):
             self.current_sprite += speed
             if (self.current_sprite >= len(self.sprites)):
                 self.current_sprite = 0
-                
+
             self.image = self.sprites[int(self.current_sprite)]
 
     def animate_me(self):
-        self.is_animating = not(self.is_animating)
-        
+        self.is_animating = not (self.is_animating)
+
     def set_position(self, x0, y0):
         self.x = x0
         self.y = y0
         self.rect.topleft = [x0, y0]
         return
-    
+
     def move_right(self):
         if (self.mode != 'r'):
             self.mode = 'r'
@@ -110,7 +109,7 @@ class Player(pygame.sprite.Sprite):
         self.x = self.x + moveInc
         self.rect.topleft = [self.x, self.y]
         return
-    
+
     def move_left(self):
         if (self.mode != 'l'):
             self.mode = 'l'
@@ -118,16 +117,16 @@ class Player(pygame.sprite.Sprite):
         self.x = self.x - moveInc
         self.rect.topleft = [self.x, self.y]
         return
-    
+
     def move_up(self):
         if (self.mode != 'u'):
             self.mode = 'u'
             self.sprites = self.upSprites
-        
+
         self.y = self.y - moveInc
         self.rect.topleft = [self.x, self.y]
         return
-    
+
     def move_down(self):
         if (self.mode != 'd'):
             self.mode = 'd'
@@ -135,18 +134,18 @@ class Player(pygame.sprite.Sprite):
         self.y = self.y + moveInc
         self.rect.topleft = [self.x, self.y]
         return
-    
+
     def get_sprite(self, sprite_index):
         return self.sprites[sprite_index]
-    
+
     def add_sprite(self, mySprite):
         self.sprites.append(mySprite)
         return
-    
+
     def loadExtraSprites(self, filename, nSprites, sprite_width, sprite_height):
         # Get the image from the file.
         spriteSheet = pygame.image.load(filename)
-        
+
         # Load the sprites
         extra_sprites = []
         y = 0
@@ -155,14 +154,13 @@ class Player(pygame.sprite.Sprite):
             pixels = get_pixels_at(x, y, sprite_width, sprite_height, spriteSheet)
             extra_sprites.append(pixels)
             x = x + sprite_width
-            
+
         return extra_sprites
-    
-    
+
     def getSprites(self, filename, nSprites, sprite_width, sprite_height):
         # Get the image from the file.
         spriteSheet = pygame.image.load(filename)
-        
+
         # Load the sprites
         self.sprites = []
         y = 0
@@ -171,15 +169,15 @@ class Player(pygame.sprite.Sprite):
             pixels = get_pixels_at(x, y, sprite_width, sprite_height, spriteSheet)
             self.sprites.append(pixels)
             x = x + sprite_width
-            
+
         return
-    
+
     def saveSprites(self, fileName, spriteWidth, spriteHeight):
         # Make a surface to hold the game layer image.
         spriteSufaceWidth = spriteWidth * len(self.sprites)
         spriteSurfaceHeight = spriteHeight
         mySpriteSurface = pygame.Surface((spriteSufaceWidth, spriteSurfaceHeight))
-        
+
         # Blit the sprites to the surface.
         x = 0
         y = 0
@@ -187,11 +185,12 @@ class Player(pygame.sprite.Sprite):
             mySprite = pygame.transform.scale(sprite, [spriteWidth, spriteHeight])
             mySpriteSurface.blit(mySprite, [x, y])
             x = x + spriteWidth
-            
+
         # Save the surface as .png
         pygame.image.save(mySpriteSurface, fileName)
         return
-    
+
+
 class grid:
     def __init__(self, x0, y0, nCols, nRows, x_pixels, y_pixels):
         self.x0 = x0
@@ -203,35 +202,35 @@ class grid:
         self.x_pixels = x_pixels
         self.y_pixels = y_pixels
         return
-    
+
     def drawMe(self, screen):
-        drawGrid(screen, self.nRows, self.nCols, 
+        drawGrid(screen, self.nRows, self.nCols,
                  self.x_pixels, self.y_pixels, self.x0, self.y0)
         return
-    
+
     def isMouseInGrid(self, mx, my):
         inThere = False
         if (((mx >= self.x0) and (mx <= self.xMax)) and
-            ((my >= self.y0) and (my <= self.yMax))):
+                ((my >= self.y0) and (my <= self.yMax))):
             inThere = True
         return inThere
-    
+
     def get_mouse_rowAndCol(self, mx, my):
-        mCol = int((mx - self.x0)/self.x_pixels)
-        mRow = int((my - self.y0)/self.y_pixels)
+        mCol = int((mx - self.x0) / self.x_pixels)
+        mRow = int((my - self.y0) / self.y_pixels)
         return mRow, mCol
-    
+
     def getPacManrowAndCol(self, mx, my):
         # Note that mx, my are at the upper left
         # corner of the sprite, we want to know
         # where the middle of the sprite is.
-        myX = mx + self.x_pixels/2
-        myY = my + self.y_pixels/2
-        mCol = int((myX - self.x0)/self.x_pixels)
-        mRow = int((myY - self.y0)/self.y_pixels)
+        myX = mx + self.x_pixels / 2
+        myY = my + self.y_pixels / 2
+        mCol = int((myX - self.x0) / self.x_pixels)
+        mRow = int((myY - self.y0) / self.y_pixels)
         return mRow, mCol
-    
-    
+
+
 def drawGrid(screen, nRows, nCols, x_size, y_size, x0, y0):
     x = x0
     y = y0
@@ -241,12 +240,13 @@ def drawGrid(screen, nRows, nCols, x_size, y_size, x0, y0):
             # Make a rectangle.
             rect = pygame.Rect(x, y, x_size, y_size)
             # Draw it
-            pygame.draw.rect(screen, ORANGE, rect, width = 1)
+            pygame.draw.rect(screen, ORANGE, rect, width=1)
             # Increment x
             x = x + x_size
         y = y + y_size
-        
+
     return
+
 
 def readTilemapFile(filename):
     f = open(filename, "r")
@@ -254,7 +254,7 @@ def readTilemapFile(filename):
     nCols = int(f.readline())
     print("nRows = ", nRows, " nCols = ", nCols)
     tilemap = []
-    
+
     for j in range(nRows):
         myLine = f.readline()
         myNumbers = []
@@ -264,17 +264,19 @@ def readTilemapFile(filename):
             x = int(stringX)
             row.append(x)
         tilemap.append(row)
-        
+
     print("tileMap = ", tilemap)
-            
+
     return nRows, nCols, tilemap
+
 
 def get_pixels_at(x, y, width, height, image0):
     rect = pygame.Rect(x, y, width, height)
     pixels = pygame.Surface((width, height))
     pixels.blit(image0, (0, 0), rect)
-    
+
     return pixels
+
 
 def loadTiles(filename, nRows, nCols):
     # Get the image from the file.
@@ -284,11 +286,11 @@ def loadTiles(filename, nRows, nCols):
     sheet_width = int(size[0])
     sheet_height = int(size[1])
     print("tileSheet size is: ", sheet_width, sheet_height)
-    
+
     # Get tile dimensions.
-    tile_width = sheet_width/nCols
-    tile_height = sheet_height/nRows
-    
+    tile_width = sheet_width / nCols
+    tile_height = sheet_height / nRows
+
     # Load the tiles.
     myPallette = []
     y = 0
@@ -299,15 +301,14 @@ def loadTiles(filename, nRows, nCols):
             pixels = get_pixels_at(x, y, tile_width, tile_height, tileSheet)
             myRow.append(pixels)
             x = x + tile_width
-            
+
         myPallette.append(myRow)
         y = y + tile_height
-        
+
     return myPallette, tile_width, tile_height
-            
-    
-    
+
     return tileSheet
+
 
 def showPallette(screen, x0, y0, pixelTiles, nRows, nCols, tile_width, tile_height):
     x = x0
@@ -320,8 +321,9 @@ def showPallette(screen, x0, y0, pixelTiles, nRows, nCols, tile_width, tile_heig
             x = x + tile_width
         y = y + tile_height
         x = x0
-        
+
     return
+
 
 def showGame(screen, x0, y0, tilemap, nRows, nCols, pixelTiles, tile_width, tile_height):
     x = x0
@@ -329,7 +331,7 @@ def showGame(screen, x0, y0, tilemap, nRows, nCols, pixelTiles, tile_width, tile
     for j in range(nRows):
         for k in range(nCols):
             tileNumber = tilemap[j][k]
-            tRow = int(tileNumber/pallette_cols)
+            tRow = int(tileNumber / pallette_cols)
             tCol = tileNumber - (tRow * pallette_cols)
             myTile = pixelTiles[tRow][tCol]
             myRect = pygame.Rect(x, y, tile_width, tile_height)
@@ -337,8 +339,9 @@ def showGame(screen, x0, y0, tilemap, nRows, nCols, pixelTiles, tile_width, tile
             x = x + tile_width
         y = y + tile_height
         x = x0
-        
+
     return
+
 
 def canIgoThatWay(myRow, myCol, nRows, nCols, direction, tilemap):
     canDo = False
@@ -364,41 +367,51 @@ def canIgoThatWay(myRow, myCol, nRows, nCols, direction, tilemap):
         if (rightCol < nCols):
             if (tilemap[myRow][rightCol] in canGoThere):
                 canDo = True
-                
+
     return canDo
-            
-    
-    
-    
+
+
 def pacDude(tileFile, palletteFile, gameFile):
     nRows, nCols, tilemap = readTilemapFile(tileFile)
     pixelTiles, tile_width, tile_height = loadTiles(palletteFile, pallette_rows, pallette_cols)
-    
+
     # Pygame setup.
     pygame.init()
     clock = pygame.time.Clock()
-    
+
     # Game Screen
     screen_width = 1200
     screen_height = 800
     screen = pygame.display.set_mode([screen_width, screen_height])
-    
+
     # Upper left corner of game.
     x0 = 3 * tile_width
     y0 = 3 * tile_height
-    
+
     # Set caption on window frame
     pygame.display.set_caption("PacDude!")
-    
+
     # Create grid for location and mapping purposes.
     gameGrid = grid(x0, y0, nCols, nRows, tile_width, tile_height)
-    
+
     # Make a pacMan.
-    pacMan = Player("pacMan", 14 * sprite_width, 4 * sprite_height, 3, sprite_width, sprite_height)
+    pacMan = Player("pacMan", 12 * sprite_width, 4 * sprite_height, 3, sprite_width, sprite_height)
+    redGhost = Player("redGhost", 16 * sprite_width, 5 * sprite_height, 2, sprite_width, sprite_height)
+    pinkGhost = Player("pinkGhost", 17 * sprite_width, 5 * sprite_height, 2, sprite_width, sprite_height)
+    cyanGhost = Player("cyanGhost", 15 * sprite_width, 5 * sprite_height, 2, sprite_width, sprite_height)
+    orangeGhost = Player("orangeGhost", 18 * sprite_width, 5 * sprite_height, 2, sprite_width, sprite_height)
     moving_sprites = pygame.sprite.Group()
     moving_sprites.add(pacMan)
     pacMan.animate_me()
-    
+    moving_sprites.add(redGhost)
+    redGhost.animate_me()
+    moving_sprites.add(pinkGhost)
+    pinkGhost.animate_me()
+    moving_sprites.add(cyanGhost)
+    cyanGhost.animate_me()
+    moving_sprites.add(orangeGhost)
+    orangeGhost.animate_me()
+
     running = True
     direction = None
     count = 0
@@ -406,41 +419,39 @@ def pacDude(tileFile, palletteFile, gameFile):
     font = pygame.font.Font(None, 36)
     score_text = font.render("Score: " + str(score), True, WHITE)
 
-    while(running):
+    while (running):
         # Handle events
         for event in pygame.event.get():
             if (event.type == pygame.QUIT):
                 running = False
-                
+
             if (event.type == pygame.MOUSEBUTTONDOWN):
                 pass
-                        
+
         key = pygame.key.get_pressed()
-        if (key[pygame.K_ESCAPE]  == True):
+        if (key[pygame.K_ESCAPE] == True):
             running = False
-        
-        # This may look odd, but we are checking for user input at one tile 
-        # intervals so that pacman does not get out of a row or column. 
+
+        # This may look odd, but we are checking for user input at one tile
+        # intervals so that pacman does not get out of a row or column.
         if ((count % 48) == 0):
-            if (key[pygame.K_UP] == True): 
+            if (key[pygame.K_UP] == True):
                 direction = "up"
-            if (key[pygame.K_DOWN] == True): 
+            if (key[pygame.K_DOWN] == True):
                 direction = "down"
             if (key[pygame.K_LEFT] == True):
                 direction = "left"
             if (key[pygame.K_RIGHT] == True):
                 direction = "right"
-            
+
         if (key[pygame.K_SPACE] == True):
             pass
-        
-        
-        
+
         # Game logic
         # Handle keyboard input for pacman's movement.  Check at one tile
         # intervals.
         if ((count % 48) == 0):
-            myRow, myCol = gameGrid.getPacManrowAndCol(pacMan.x, pacMan.y) 
+            myRow, myCol = gameGrid.getPacManrowAndCol(pacMan.x, pacMan.y)
             go = canIgoThatWay(myRow, myCol, nRows, nCols, direction, tilemap)
 
         if (go == True):
@@ -461,8 +472,8 @@ def pacDude(tileFile, palletteFile, gameFile):
                 current_y = pacMan.y
 
                 # Create a new Pacman with the "pacManGun" image
+                moving_sprites.remove(pacMan)
                 pacMan = Player("pacManGun", current_x, current_y, 3, sprite_width, sprite_height)
-                moving_sprites = pygame.sprite.Group()
                 moving_sprites.add(pacMan)
                 pacMan.animate_me()
 
@@ -474,39 +485,29 @@ def pacDude(tileFile, palletteFile, gameFile):
         # Update the score text when the score changes
         new_score_text = font.render("Score: " + str(score), True, WHITE)
         if new_score_text != score_text:
-
-
             score_text = new_score_text
 
         score_text = font.render("Score: " + str(score), True, WHITE)
-
-
 
         # Draw the tile pallet from the sprite sheet to the screen.
         showGame(screen, x0, y0, tilemap, nRows, nCols, pixelTiles, tile_width, tile_height)
         gameGrid.drawMe(screen)
 
-
-
-
-        
         # Draw characters.
         moving_sprites.update(.10)
         moving_sprites.draw(screen)
-        
+
         # Put surface to video memory
         pygame.display.flip()
 
-
         # Make sure we get 60 or frames per second
         clock.tick(60)
-        
+
         # Update count for keyboard consistency.
         count = count + moveInc
-        
+
     pygame.quit()
     sys.exit()
-    
-    
+
 
 pacDude("tileMap.txt", "myGamePallette1.png", "baff")
