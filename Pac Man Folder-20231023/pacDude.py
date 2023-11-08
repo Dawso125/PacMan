@@ -38,7 +38,10 @@ CYAN = (0, 255, 255)
 MAGENTA = (255, 0, 255)
 BLUE = (0, 0, 255)
 
+
+
 class Player(pygame.sprite.Sprite):
+
     def __init__(self, filename_base, pos_x, pos_y, nSprites, sprite_width, sprite_height):
         super().__init__()
         # Turn animate off.
@@ -77,7 +80,12 @@ class Player(pygame.sprite.Sprite):
         self.rect.topright = [pos_x, pos_y]
         
         self.mode = 'r'
-        
+
+    def set_position(self, x0, y0):
+        self.x = x0
+        self.y = y0
+        self.rect.topleft = [x0, y0]
+        return
     def update(self, speed):
         if (self.is_animating == True):
             self.current_sprite += speed
@@ -85,7 +93,7 @@ class Player(pygame.sprite.Sprite):
                 self.current_sprite = 0
                 
             self.image = self.sprites[int(self.current_sprite)]
-            
+
     def animate_me(self):
         self.is_animating = not(self.is_animating)
         
@@ -394,6 +402,9 @@ def pacDude(tileFile, palletteFile, gameFile):
     running = True
     direction = None
     count = 0
+    score = 0
+    font = pygame.font.Font(None, 36)
+    score_text = font.render("Score: " + str(score), True, WHITE)
 
     while(running):
         # Handle events
@@ -441,10 +452,43 @@ def pacDude(tileFile, palletteFile, gameFile):
                 pacMan.move_right()
             elif (direction == "left"):
                 pacMan.move_left()
-       
+
+        myRow, myCol = gameGrid.getPacManrowAndCol(pacMan.x, pacMan.y)
+        if tilemap[myRow][myCol] in [46, 47, 45]:
+            if tilemap[myRow][myCol] == 47:
+                # Remember the current position of Pacman
+                current_x = pacMan.x
+                current_y = pacMan.y
+
+                # Create a new Pacman with the "pacManGun" image
+                pacMan = Player("pacManGun", current_x, current_y, 3, sprite_width, sprite_height)
+                moving_sprites = pygame.sprite.Group()
+                moving_sprites.add(pacMan)
+                pacMan.animate_me()
+
+            tilemap[myRow][myCol] = 44
+            score += 100
+            screen.fill(BLACK, (10, 10, 200, 50))
+            screen.blit(score_text, (10, 10))
+
+        # Update the score text when the score changes
+        new_score_text = font.render("Score: " + str(score), True, WHITE)
+        if new_score_text != score_text:
+
+
+            score_text = new_score_text
+
+        score_text = font.render("Score: " + str(score), True, WHITE)
+
+
+
         # Draw the tile pallet from the sprite sheet to the screen.
         showGame(screen, x0, y0, tilemap, nRows, nCols, pixelTiles, tile_width, tile_height)
         gameGrid.drawMe(screen)
+
+
+
+
         
         # Draw characters.
         moving_sprites.update(.10)
@@ -452,6 +496,8 @@ def pacDude(tileFile, palletteFile, gameFile):
         
         # Put surface to video memory
         pygame.display.flip()
+
+
         # Make sure we get 60 or frames per second
         clock.tick(60)
         
