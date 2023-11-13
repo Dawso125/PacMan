@@ -10,6 +10,7 @@ pacMan maze builder
 import pygame, sys
 import numpy
 
+
 user_input = False
 
 # Define some colors
