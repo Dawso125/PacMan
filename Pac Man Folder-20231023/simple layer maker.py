@@ -346,7 +346,7 @@ while(running):
     
     
 # Save the things we made.
-saveTileMap("tileMap3.txt", tile_map, gameHeight_in_tiles, gameWidth_in_tiles)
+saveTileMap("tileMap.txt", tile_map, gameHeight_in_tiles, gameWidth_in_tiles)
 pygame.image.save(palletteImage, "myGamePallette.png")
 pygame.image.save(myGameSurface, "myGameSurface.png")
 
