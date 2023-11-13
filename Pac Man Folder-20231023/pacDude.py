@@ -560,17 +560,24 @@ def pacDude(tileFile, palletteFile, gameFile):
                 pacMan = Player("pacManGun", current_x, current_y, 3, sprite_width, sprite_height)
                 moving_sprites.add(pacMan)
                 pacMan.animate_me()
-				pacMan.hasGun = True
+                pacMan.hasGun = True  # Corrected indentation
+
             if tilemap[myRow][myCol] == 46:
                 # Remember the current position of Pacman
                 current_x = pacMan.x
                 current_y = pacMan.y
 
-                # Create a new Pacman with the "pacManGun" image
+                # Create a new Pacman with the "pacManRocket" image
                 moving_sprites.remove(pacMan)
                 pacMan = Player("pacManRocket", current_x, current_y, 3, sprite_width, sprite_height)
                 moving_sprites.add(pacMan)
                 pacMan.animate_me()
+
+            tilemap[myRow][myCol] = 44
+            score += 100
+            screen.fill(BLACK, (10, 10, 200, 50))
+            screen.blit(score_text, (10, 10))
+
             tilemap[myRow][myCol] = 44
             score += 100
             screen.fill(BLACK, (10, 10, 200, 50))
