@@ -11,7 +11,7 @@ layer maker program.
 
 """
 
-import pygame, sys
+import pygame, sys, math
 
 # Pallette constants
 pallette_rows = 3
@@ -38,6 +38,16 @@ CYAN = (0, 255, 255)
 MAGENTA = (255, 0, 255)
 BLUE = (0, 0, 255)
 
+maxExplodeCount = 30
+
+screen_width = 1200
+screen_height = 800
+
+shotDelay = 90
+
+def deg2Rad(deg):
+    rad = (deg / 180.0) * math.pi
+    return rad
 
 
 class Player(pygame.sprite.Sprite):
@@ -80,7 +90,16 @@ class Player(pygame.sprite.Sprite):
         self.rect.topright = [pos_x, pos_y]
         
         self.mode = 'r'
+        self.hasGun = False
 
+    def shoot_bullet(self, bullets, heading):
+        x = self.x
+        y = self.y
+
+        new_bullet = bullet(x, y, heading)
+
+        bullets.append(new_bullet)
+        print("new bullet spawned at: ", x, y)
     def set_position(self, x0, y0):
         self.x = x0
         self.y = y0
@@ -191,7 +210,40 @@ class Player(pygame.sprite.Sprite):
         # Save the surface as .png
         pygame.image.save(mySpriteSurface, fileName)
         return
-    
+
+class bullet:
+    def __init__(self, x0, y0, heading0):
+        self.x = x0
+        self.y = y0
+        self.radius = 5
+        self.heading = heading0
+        self.velocity = 20
+        self.exists = True
+        self.hit = False
+        self.timer = 90
+        return
+
+    def drawMe(self, s):
+        if (self.exists == True):
+            pygame.draw.circle(s, YELLOW, [int(self.x), int(self.y)], self.radius, 1)
+
+        return
+
+    def moveMe(self):
+        angRad = deg2Rad(self.heading)
+        bX = self.x + self.velocity * math.cos(angRad)
+        bY = self.y + self.velocity * math.sin(angRad)
+        if ((bX > 0) and (bX < screen_width)) and ((bY > 0) and (bY < screen_height)):
+            self.x = bX
+            self.y = bY
+        else:
+            self.exists = False
+        return
+
+    def doIExist(self):
+        return self.exists
+
+
 class grid:
     def __init__(self, x0, y0, nCols, nRows, x_pixels, y_pixels):
         self.x0 = x0
@@ -377,6 +429,13 @@ def pacDude(tileFile, palletteFile, gameFile):
     # Pygame setup.
     pygame.init()
     clock = pygame.time.Clock()
+
+    #bullet stuff
+    bullets = []
+    bulletSize = 1
+    bulletSpeed = 3
+    heading = 0
+    shotDelay = 60
     
     # Game Screen
     screen_width = 1200
@@ -424,15 +483,34 @@ def pacDude(tileFile, palletteFile, gameFile):
         if ((count % 48) == 0):
             if (key[pygame.K_UP] == True): 
                 direction = "up"
+                heading = 270
             if (key[pygame.K_DOWN] == True): 
                 direction = "down"
+                heading = 90
             if (key[pygame.K_LEFT] == True):
                 direction = "left"
+                heading = 180
             if (key[pygame.K_RIGHT] == True):
                 direction = "right"
+                heading = 0
             
         if (key[pygame.K_SPACE] == True):
-            pass
+            if pacMan.hasGun:
+                if shotDelay <= 0:
+                    pacMan.shoot_bullet(bullets, heading)
+                    shotDelay = 60
+
+        for b in bullets:
+            b.moveMe()
+            b.timer += 1
+
+        for b in bullets:
+            if b.timer > 105:
+                b.exists = False
+                bullets.remove(b)
+
+
+
         
         
         
@@ -465,11 +543,18 @@ def pacDude(tileFile, palletteFile, gameFile):
                 moving_sprites = pygame.sprite.Group()
                 moving_sprites.add(pacMan)
                 pacMan.animate_me()
+                pacMan.hasGun = True
 
             tilemap[myRow][myCol] = 44
             score += 100
             screen.fill(BLACK, (10, 10, 200, 50))
             screen.blit(score_text, (10, 10))
+
+
+
+
+
+
 
         # Update the score text when the score changes
         new_score_text = font.render("Score: " + str(score), True, WHITE)
@@ -485,6 +570,11 @@ def pacDude(tileFile, palletteFile, gameFile):
         # Draw the tile pallet from the sprite sheet to the screen.
         showGame(screen, x0, y0, tilemap, nRows, nCols, pixelTiles, tile_width, tile_height)
         gameGrid.drawMe(screen)
+
+        for b in bullets:
+            b.drawMe(screen)
+
+        shotDelay -= 1
 
 
 
