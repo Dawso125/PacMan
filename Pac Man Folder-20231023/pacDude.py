@@ -538,8 +538,6 @@ def pacDude(tileFile, palletteFile, gameFile):
                 current_x = pacMan.x
                 current_y = pacMan.y
 
-
-
                 # Create a new Pacman with the "pacManGun" image
                 pacMan = Player("pacManGun", current_x, current_y, 3, sprite_width, sprite_height)
                 moving_sprites = pygame.sprite.Group()
@@ -551,6 +549,7 @@ def pacDude(tileFile, palletteFile, gameFile):
             score += 100
             screen.fill(BLACK, (10, 10, 200, 50))
             screen.blit(score_text, (10, 10))
+
 
 
 
