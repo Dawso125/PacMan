@@ -10,6 +10,7 @@ pacMan maze builder
 import pygame, sys
 import numpy
 
+
 user_input = False
 
 # Define some colors
@@ -345,7 +346,7 @@ while(running):
     
     
 # Save the things we made.
-saveTileMap("tileMap.txt", tile_map, gameHeight_in_tiles, gameWidth_in_tiles)
+saveTileMap("tileMap3.txt", tile_map, gameHeight_in_tiles, gameWidth_in_tiles)
 pygame.image.save(palletteImage, "myGamePallette.png")
 pygame.image.save(myGameSurface, "myGameSurface.png")
 
