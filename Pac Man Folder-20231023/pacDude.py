@@ -11,7 +11,9 @@ layer maker program.
 
 """
 
-import pygame, sys, math
+import pygame, sys, math, random
+from pygame import mixer
+from pygame.examples.grid import TILE_SIZE
 
 # Pallette constants
 pallette_rows = 3
@@ -89,6 +91,8 @@ class Player(pygame.sprite.Sprite):
 
         self.mode = 'r'
         self.hasGun = False
+        self.hasRocket = False
+        self.firstMove = True
 
     def shoot_bullet(self, bullets, heading):
         x = self.x
@@ -209,6 +213,23 @@ class Player(pygame.sprite.Sprite):
         pygame.image.save(mySpriteSurface, fileName)
         return
 
+    def moveGhost(self, count):
+          # You may need to adjust this value
+        num = random.randint(0, 300)
+        # Check if count is a multiple of 48
+        if count % 48 == 0:
+            # Generate a random number to determine the movement direction
+            random_direction = random.choice(['up', 'down', 'left', 'right'])
+
+            if random_direction == 'up':
+                self.move_up()
+            elif random_direction == 'down':
+                self.move_down()
+            elif random_direction == 'left':
+                self.move_left()
+            elif random_direction == 'right':
+                self.move_right()
+
 
 class bullet:
     def __init__(self, x0, y0, heading0):
@@ -224,7 +245,13 @@ class bullet:
 
     def drawMe(self, s):
         if (self.exists == True):
-            pygame.draw.circle(s, YELLOW, [int(self.x), int(self.y)], self.radius, 1)
+            pygame.draw.circle(s, CYAN, [int(self.x), int(self.y)], self.radius, 1)
+
+        return
+
+    def drawMeRocket(self, s):
+        if (self.exists == True):
+            pygame.draw.circle(s, RED, [int(self.x), int(self.y)], self.radius, 5)
 
         return
 
@@ -241,6 +268,20 @@ class bullet:
 
     def doIExist(self):
         return self.exists
+
+    def checkRocketCollision(self, tilemap):
+        
+        # Calculate the tile indices based on the rocket's position
+        tile_x = int(self.x / TILE_SIZE)
+        tile_y = int(self.y / TILE_SIZE)
+
+        # Check if the rocket has hit a wall
+        if tilemap[tile_y][tile_x] in [2, 13, 12, 10]:
+            # Rocket hit a wall, change the tile to represent black space
+            tilemap[tile_y][tile_x] = 44
+            self.exists = False  # Mark the rocket as not existing
+
+        return tilemap
 
 
 
@@ -431,14 +472,22 @@ def pacDude(tileFile, palletteFile, gameFile):
     # Pygame setup.
     pygame.init()
     clock = pygame.time.Clock()
+    mixer.init()
 
+    mixer.music.load('Cutscene.mp3')
+    mixer.music.play(-1)  # -1 means the music will loop indefinitely
 
     #bullet stuff
     bullets = []
+
+    rockets = []
     bulletSize = 1
     bulletSpeed = 3
     heading = 0
     shotDelay = 60
+
+    #move the ghosts
+    redDelay = 300
     
 
     # Game Screen
@@ -509,12 +558,15 @@ def pacDude(tileFile, palletteFile, gameFile):
             if (key[pygame.K_RIGHT] == True):
                 direction = "right"
                 heading = 0
+            if (key[pygame.K_r] == True):
+                if pacMan.hasRocket:
+                    pacMan.shoot_bullet(rockets, heading)
 
-        if (key[pygame.K_SPACE] == True):
-            if pacMan.hasGun:
-                if shotDelay <= 0:
-                    pacMan.shoot_bullet(bullets, heading)
-                    shotDelay = 60
+            if (key[pygame.K_SPACE] == True):
+                if pacMan.hasGun:
+                    if shotDelay <= 0:
+                        pacMan.shoot_bullet(bullets, heading)
+                        shotDelay = 60
 
         for b in bullets:
             b.moveMe()
@@ -525,6 +577,10 @@ def pacDude(tileFile, palletteFile, gameFile):
                 b.exists = False
                 bullets.remove(b)
 
+        for r in rockets:
+            r.moveMe()
+            r.checkRocketCollision(tilemap)
+            r.timer += 1
 
 
         
@@ -560,7 +616,24 @@ def pacDude(tileFile, palletteFile, gameFile):
                 pacMan = Player("pacManGun", current_x, current_y, 3, sprite_width, sprite_height)
                 moving_sprites.add(pacMan)
                 pacMan.animate_me()
-                pacMan.hasGun = True
+                pacMan.hasGun = True  # Corrected indentation
+
+            if tilemap[myRow][myCol] == 46:
+                # Remember the current position of Pacman
+                current_x = pacMan.x
+                current_y = pacMan.y
+
+                # Create a new Pacman with the "pacManRocket" image
+                moving_sprites.remove(pacMan)
+                pacMan = Player("pacManRocket", current_x, current_y, 3, sprite_width, sprite_height)
+                moving_sprites.add(pacMan)
+                pacMan.animate_me()
+                pacMan.hasRocket = True
+
+            tilemap[myRow][myCol] = 44
+            score += 100
+            screen.fill(BLACK, (10, 10, 200, 50))
+            screen.blit(score_text, (10, 10))
 
             tilemap[myRow][myCol] = 44
             score += 100
@@ -582,18 +655,30 @@ def pacDude(tileFile, palletteFile, gameFile):
 
         # Draw the tile pallet from the sprite sheet to the screen.
         showGame(screen, x0, y0, tilemap, nRows, nCols, pixelTiles, tile_width, tile_height)
-        gameGrid.drawMe(screen)
+        #gameGrid.drawMe(screen)
 
 
         for b in bullets:
             b.drawMe(screen)
 
+        for r in rockets:
+            r.drawMeRocket(screen)
+
         shotDelay -= 1
+        redDelay -= 1
+
+        if redGhost.firstMove:
+            redGhost.moveGhost(count)
+            redGhost.firstMove = False
+
+        if redDelay <= 0:
+            redGhost.moveGhost(count)
 
 
 
 
-        
+
+
 
         # Draw characters.
         moving_sprites.update(.10)
