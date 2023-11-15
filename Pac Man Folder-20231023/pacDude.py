@@ -12,7 +12,8 @@ layer maker program.
 """
 
 import pygame, sys, math, random
-
+from pygame import mixer
+from pygame.examples.grid import TILE_SIZE
 
 # Pallette constants
 pallette_rows = 3
@@ -268,6 +269,19 @@ class bullet:
     def doIExist(self):
         return self.exists
 
+    def checkRocketCollision(self, tilemap):
+        # Calculate the tile indices based on the rocket's position
+        tile_x = int(self.x / TILE_SIZE)
+        tile_y = int(self.y / TILE_SIZE)
+
+        # Check if the rocket has hit a wall
+        if tilemap[tile_y][tile_x] in [2, 13]:
+            # Rocket hit a wall, change the tile to represent black space
+            tilemap[tile_y][tile_x] = 44
+            self.exists = False  # Mark the rocket as not existing
+
+        return tilemap
+
 
 
 class grid:
@@ -457,7 +471,10 @@ def pacDude(tileFile, palletteFile, gameFile):
     # Pygame setup.
     pygame.init()
     clock = pygame.time.Clock()
+    mixer.init()
 
+    mixer.music.load('Cutscene.mp3')
+    mixer.music.play(-1)  # -1 means the music will loop indefinitely
 
     #bullet stuff
     bullets = []
@@ -561,6 +578,7 @@ def pacDude(tileFile, palletteFile, gameFile):
 
         for r in rockets:
             r.moveMe()
+            r.checkRocketCollision(tilemap)
             r.timer += 1
 
 
@@ -636,7 +654,7 @@ def pacDude(tileFile, palletteFile, gameFile):
 
         # Draw the tile pallet from the sprite sheet to the screen.
         showGame(screen, x0, y0, tilemap, nRows, nCols, pixelTiles, tile_width, tile_height)
-        gameGrid.drawMe(screen)
+        #gameGrid.drawMe(screen)
 
 
         for b in bullets:
