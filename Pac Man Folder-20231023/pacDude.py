@@ -270,12 +270,13 @@ class bullet:
         return self.exists
 
     def checkRocketCollision(self, tilemap):
+        
         # Calculate the tile indices based on the rocket's position
         tile_x = int(self.x / TILE_SIZE)
         tile_y = int(self.y / TILE_SIZE)
 
         # Check if the rocket has hit a wall
-        if tilemap[tile_y][tile_x] in [2, 13]:
+        if tilemap[tile_y][tile_x] in [2, 13, 12, 10]:
             # Rocket hit a wall, change the tile to represent black space
             tilemap[tile_y][tile_x] = 44
             self.exists = False  # Mark the rocket as not existing
